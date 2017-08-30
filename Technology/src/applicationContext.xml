@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+	<context:property-placeholder location="classpath:jdbc.properties" />
+
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="driverClass" value="${jdbc.driverClass}" />
+		<property name="minPoolSize" value="5" />
+		<property name="maxPoolSize" value="10" />
+		<property name="maxStatements" value="500" />
+		<property name="loginTimeout" value="300" />
+		<property name="initialPoolSize" value="5"></property>
+		<property name="checkoutTimeout" value="1000" />
+		<property name="testConnectionOnCheckin" value="true"></property>
+		<property name="idleConnectionTestPeriod" value="60"></property>
+	</bean>
+
+
+	<!-- sqlSessionFactory 创建工厂对象 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 加载mybatis的配置文件 -->
+		<property name="configLocation" value="classpath:mybatis.xml"></property>
+		<!-- 数据源 -->
+		<property name="dataSource" ref="dataSource"></property>
+		<!-- 自动扫描Mapper的配置文件,不用去mybatis配置文件中进行设置了 -->
+		<property name="mapperLocations" value="classpath:com/mapper/*Mapper.xml" />
+		<!-- 自动设置对应的Mapper对象名称 比如com.Dog 可以写成Dog -->
+		<property name="typeAliasesPackage" value="com.entites" />
+	</bean>
+
+	<!-- 这个是自动扫描对应包下面的mapper对象 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.mapper" />
+	</bean>
+
+
+	<!-- 创建hibernate事务管理器 -->
+	<!-- <bean id="hibernateTransactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager"> 
+		<property name="sessionFactory" ref="sessionFactory"></property> </bean> -->
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- 开启注解事务 -->
+	<tx:annotation-driven transaction-manager="hibernateTransactionManager" />
+
+	<context:component-scan base-package="com.*">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+
+	<!-- 自定义的Realm,进行一些权限用户的拦截 -->
+	<bean id="loginRealm" class="com.realm.LoginRealm"></bean>
+
+	<!-- 缓存管理器 -->
+	<bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+		<property name="cacheManagerConfigFile" value="classpath:shiro-ehcache.xml" />
+	</bean>
+	
+	<!-- 核心,安全管理器 -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<!-- 传入相应的realm,如果有多个realm,那么久需要<Realms>标签 -->
+		<property name="realm" ref="loginRealm" />
+		<property name="cacheManager" ref="cacheManager" />
+	</bean>
+
+	<!-- 不太清楚,但是应该都是必须要配 -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+
+	<!-- 开启安全注解需要的bean -->
+	<bean
+		class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+		depends-on="lifecycleBeanPostProcessor" />
+	<!-- 开启安全注解需要的bean -->
+	<bean
+		class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property name="securityManager" ref="securityManager" />
+	</bean>
+
+	<!-- 基于 HTTP 的远程调用 -->
+	<bean id="secureRemoteInvocationExecutor"
+		class="org.apache.shiro.spring.remoting.SecureRemoteInvocationExecutor">
+		<property name="securityManager" ref="securityManager" />
+	</bean>
+	<!-- shiro过滤器 -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager" />
+		<property name="loginUrl" value="/login.jsp" />
+		<property name="successUrl" value="/index.jsp" />
+		<property name="unauthorizedUrl" value="/unauthorized.jsp" />
+		<property name="filterChainDefinitions">
+			<value>
+				/index.jsp = anon
+				/unauthorized.jsp = anon
+				/login.jsp = anon
+				/login = anon
+				/logout = anon
+				/400.jsp = anon
+				/404.jsp = anon
+				/foot.jsp = anon
+				/css/** = anon
+				/js/** = anon
+				/img/** = anon
+				/*.jar = anon
+				/** = authc
+			</value>
+		</property>
+	</bean>
+</beans>

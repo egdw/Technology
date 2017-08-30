@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mapper.UserMapper" >
+  <resultMap id="BaseResultMap" type="com.entites.User" >
+    <id column="u_id" property="uId" jdbcType="INTEGER" />
+    <result column="u_name" property="uName" jdbcType="VARCHAR" />
+    <result column="u_password" property="uPassword" jdbcType="VARCHAR" />
+    <result column="auth" property="auth" jdbcType="INTEGER" />
+    <result column="creadt_date" property="creadtDate" jdbcType="TIMESTAMP" />
+    <result column="task" property="task" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    u_id, u_name, u_password, auth, creadt_date, task
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from user
+    where u_id = #{uId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from user
+    where u_id = #{uId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.entites.User" >
+    insert into user (u_id, u_name, u_password, 
+      auth, creadt_date, task
+      )
+    values (#{uId,jdbcType=INTEGER}, #{uName,jdbcType=VARCHAR}, #{uPassword,jdbcType=VARCHAR}, 
+      #{auth,jdbcType=INTEGER}, #{creadtDate,jdbcType=TIMESTAMP}, #{task,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.entites.User" >
+    insert into user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="uId != null" >
+        u_id,
+      </if>
+      <if test="uName != null" >
+        u_name,
+      </if>
+      <if test="uPassword != null" >
+        u_password,
+      </if>
+      <if test="auth != null" >
+        auth,
+      </if>
+      <if test="creadtDate != null" >
+        creadt_date,
+      </if>
+      <if test="task != null" >
+        task,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="uId != null" >
+        #{uId,jdbcType=INTEGER},
+      </if>
+      <if test="uName != null" >
+        #{uName,jdbcType=VARCHAR},
+      </if>
+      <if test="uPassword != null" >
+        #{uPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="auth != null" >
+        #{auth,jdbcType=INTEGER},
+      </if>
+      <if test="creadtDate != null" >
+        #{creadtDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="task != null" >
+        #{task,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.entites.User" >
+    update user
+    <set >
+      <if test="uName != null" >
+        u_name = #{uName,jdbcType=VARCHAR},
+      </if>
+      <if test="uPassword != null" >
+        u_password = #{uPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="auth != null" >
+        auth = #{auth,jdbcType=INTEGER},
+      </if>
+      <if test="creadtDate != null" >
+        creadt_date = #{creadtDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="task != null" >
+        task = #{task,jdbcType=INTEGER},
+      </if>
+    </set>
+    where u_id = #{uId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.entites.User" >
+    update user
+    set u_name = #{uName,jdbcType=VARCHAR},
+      u_password = #{uPassword,jdbcType=VARCHAR},
+      auth = #{auth,jdbcType=INTEGER},
+      creadt_date = #{creadtDate,jdbcType=TIMESTAMP},
+      task = #{task,jdbcType=INTEGER}
+    where u_id = #{uId,jdbcType=INTEGER}
+  </update>
+  
+    
+  <resultMap type="com.entites.User" id="userResultMap">
+  		<id column="u_id" property="uId"/>
+  		<result column="u_name" property="uName"/>
+  		<result column="u_password" property="uPassword"/>
+  		<result column="auth" property="auth"/>
+  		<result column="creadt_date" property="creadtDate"/>
+  		<result column="task" property="task"/>
+  </resultMap>
+  
+  <select id="selectByUsernameAndPassword" resultMap="userResultMap">
+  	select * from user where u_name=#{0} and u_password = #{1};
+  </select>
+  
+  <select id="getAll" resultMap="userResultMap">
+  	select * from user;
+  </select>
+  
+  <select id="getCount" resultType="int">
+  		select count(*) from user;
+  </select>
+  
+  <select id="getUserByUserName" resultMap = "userResultMap">
+  	select * from user where u_name = #{0}
+  </select>
+  
+  <select id="getByAuthId" resultMap="userResultMap">
+  	select * from user where auth = #{0};
+  </select>
+</mapper>

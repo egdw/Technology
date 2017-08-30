@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mapper.TaskCompleteMapper">
+	<resultMap id="BaseResultMap" type="com.entites.TaskComplete">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="u_id" property="uId" jdbcType="INTEGER" />
+		<result column="t_id" property="tId" jdbcType="INTEGER" />
+		<result column="complete_time" property="completeTime"
+			jdbcType="TIMESTAMP" />
+		<result column="agent" property="agent" jdbcType="INTEGER" />
+		<result column="iscomplete" property="iscomplete" jdbcType="BIT" />
+		<result column="complete_password" property="completePassword"
+			jdbcType="VARCHAR" />
+		<result column="t_name" property="tName" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, u_id, t_id, complete_time, agent, iscomplete, complete_password,
+		t_name
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from task_complete
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from task_complete
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="com.entites.TaskComplete">
+		insert into task_complete (id, u_id, t_id,
+		complete_time, agent, iscomplete,
+		complete_password, t_name)
+		values (#{id,jdbcType=INTEGER}, #{uId,jdbcType=INTEGER},
+		#{tId,jdbcType=INTEGER},
+		#{completeTime,jdbcType=TIMESTAMP}, #{agent,jdbcType=INTEGER}, #{iscomplete,jdbcType=BIT},
+		#{completePassword,jdbcType=VARCHAR}, #{tName,jdbcType=VARCHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="com.entites.TaskComplete">
+		insert into task_complete
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="uId != null">
+				u_id,
+			</if>
+			<if test="tId != null">
+				t_id,
+			</if>
+			<if test="completeTime != null">
+				complete_time,
+			</if>
+			<if test="agent != null">
+				agent,
+			</if>
+			<if test="iscomplete != null">
+				iscomplete,
+			</if>
+			<if test="completePassword != null">
+				complete_password,
+			</if>
+			<if test="tName != null">
+				t_name,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="uId != null">
+				#{uId,jdbcType=INTEGER},
+			</if>
+			<if test="tId != null">
+				#{tId,jdbcType=INTEGER},
+			</if>
+			<if test="completeTime != null">
+				#{completeTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="agent != null">
+				#{agent,jdbcType=INTEGER},
+			</if>
+			<if test="iscomplete != null">
+				#{iscomplete,jdbcType=BIT},
+			</if>
+			<if test="completePassword != null">
+				#{completePassword,jdbcType=VARCHAR},
+			</if>
+			<if test="tName != null">
+				#{tName,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.entites.TaskComplete">
+		update task_complete
+		<set>
+			<if test="uId != null">
+				u_id = #{uId,jdbcType=INTEGER},
+			</if>
+			<if test="tId != null">
+				t_id = #{tId,jdbcType=INTEGER},
+			</if>
+			<if test="completeTime != null">
+				complete_time = #{completeTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="agent != null">
+				agent = #{agent,jdbcType=INTEGER},
+			</if>
+			<if test="iscomplete != null">
+				iscomplete = #{iscomplete,jdbcType=BIT},
+			</if>
+			<if test="completePassword != null">
+				complete_password = #{completePassword,jdbcType=VARCHAR},
+			</if>
+			<if test="tName != null">
+				t_name = #{tName,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.entites.TaskComplete">
+		update task_complete
+		set u_id = #{uId,jdbcType=INTEGER},
+		t_id = #{tId,jdbcType=INTEGER},
+		complete_time = #{completeTime,jdbcType=TIMESTAMP},
+		agent = #{agent,jdbcType=INTEGER},
+		iscomplete = #{iscomplete,jdbcType=BIT},
+		complete_password = #{completePassword,jdbcType=VARCHAR},
+		t_name = #{tName,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<resultMap type="com.entites.TaskComplete" id="taskCompleteResultMap">
+		<id column="id" property="id" />
+		<result column="u_id" property="uId" />
+		<result column="t_id" property="tId" />
+		<result column="t_name" property="tName" />
+		<result column="complete_time" property="completeTime" />
+		<result column="agent" property="agent" />
+		<result column="iscomplete" property="iscomplete" />
+		<result column="complete_password" property="completePassword" />
+	</resultMap>
+
+	<select id="selectTaskCompleteByUserId" resultMap="taskCompleteResultMap">
+		select * from
+		task_complete where u_id=#{0}
+	</select>
+
+	<select id="clearRecord">
+		delete from task_complete;
+	</select>
+	
+	<select id="getTaskByPassword" resultMap="taskCompleteResultMap">
+		select * from task_complete where complete_password = #{0}
+	</select>
+	
+	<select id="getCountCompleteByUserId" resultType="int">
+		select count(*) from task_complete where iscomplete = #{1} and u_id = #{0}
+	</select>
+</mapper>
